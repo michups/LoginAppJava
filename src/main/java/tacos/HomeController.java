@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 @Controller("/")
 @Scope(value = WebApplicationContext.SCOPE_APPLICATION)
 public class HomeController {
@@ -45,8 +48,10 @@ public class HomeController {
     public ResponseEntity<DataResponse> getData() {
 
         DataResponse dataResponse = new DataResponse();
-        if (user.getName().equals("admin")) {
-            dataResponse = new DataResponse("succes", "top secret mesage only for admin");
+        if (user.getName()!=null && user.getName().equals("admin")) {
+            dataResponse = new DataResponse("succes", "Top secret mesage only for admin");
+        } else {
+            dataResponse = new DataResponse("failure", "You are not admin!");
         }
         return ResponseEntity.ok(dataResponse);
     }
@@ -64,4 +69,12 @@ public class HomeController {
         return ResponseEntity.ok(statusResponse);
     }
 
+    @CrossOrigin
+    @GetMapping(path = "/logout", produces = "application/json")
+    public ResponseEntity<SuccessResponse> logout() {
+        user = new User();
+        SuccessResponse successResponse = new SuccessResponse();
+        successResponse.setSuccess(true);
+        return ResponseEntity.ok(successResponse);
+    }
 }
