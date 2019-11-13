@@ -1,0 +1,26 @@
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto=none: none
+      properties:
+        hibernate:
+          jdbc:
+            lob:
+              non_contextual_creation: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/pgdb
+    username: pguser
+    password: pguser
+logging:
+  level:
+    org:
+      springframework: ERROR
+      hibernate:
+        show_sql: true
+        SQL: trace
+        type:
+          descriptor:
+            sql: trace

@@ -1,4 +1,4 @@
-package tacos;
+package com.michups.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,5 +12,7 @@ import lombok.Setter;
 public class StatusResponse {
 
     private Boolean status;
+
+    private String message;
 
 }

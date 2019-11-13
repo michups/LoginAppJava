@@ -1,4 +1,4 @@
-package tacos;
+package com.michups.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,9 +9,8 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DataResponse {
+public class SuccessResponse {
 
-    private String status;
+    private Boolean success;
 
-    private String message;
 }

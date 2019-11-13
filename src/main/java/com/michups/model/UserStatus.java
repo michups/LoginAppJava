@@ -1,4 +1,4 @@
-package tacos;
+package com.michups.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,8 +18,9 @@ import java.io.Serializable;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements Serializable {
+public class UserStatus implements Serializable {
 
-    private String name;
+    private Boolean authorize;
+    private Boolean admin;
 
 }

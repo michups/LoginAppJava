@@ -1,4 +1,4 @@
-package tacos;
+package com.michups.response;
 
 public class StringResponse {
 
