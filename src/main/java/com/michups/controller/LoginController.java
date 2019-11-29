@@ -2,78 +2,83 @@ package com.michups.controller;
 
 import com.michups.model.LoginCredencials;
 import com.michups.model.User;
-import com.michups.model.UserStatus;
+import com.michups.model.CurrentUser;
 import com.michups.response.*;
 import com.michups.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.WebApplicationContext;
 
-@Controller("/")
-@Scope(value = WebApplicationContext.SCOPE_APPLICATION)
-public class HomeController {
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
-    @GetMapping("/asd")
-    public String home() {
-        return "home";
-    }
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
+@Controller
+@RequestMapping("/auth")
+@Scope(value = WebApplicationContext.SCOPE_REQUEST)
+//@SessionAttributes("currentUser")
 
-    @Autowired
-    private UserStatus userStatus;
+public class LoginController {
+
+//    @Autowired
+//    private CurrentUser currentUser;
 
     @Autowired
     private IUserService userService;
 
-    @CrossOrigin
-    @PostMapping(path = "/auth", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<StringResponse> authorizeUser(@RequestBody LoginCredencials loginCredencials) {
+//    @Resource(name = "currentUser")
+    CurrentUser currentUser;
 
-        System.out.println(loginCredencials.toString());
+    @PostMapping(path = "/login", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<StringResponse> authorizeUser(@RequestBody LoginCredencials loginCredencials,
+                                                        HttpServletRequest request) {
+
+        currentUser = (CurrentUser) request.getAttribute("currentUser");
+
+        if (currentUser == null) {
+            currentUser = new CurrentUser();
+        }
+
 
         User user = userService.findByUsername(loginCredencials.getUsername());
 
         StringResponse stringResponse;
 
         if (user.getPassword().equals(loginCredencials.getPassword())) {
-            setUserStatusForUser(user.getAdmin(), true);
+
+            currentUser = new CurrentUser();
+            currentUser.setAdmin(user.getAdmin());
+            currentUser.setAuthorize(true);
+            currentUser.setUsername(user.getUsername());
+            currentUser.setQuote(user.getQuote());
             stringResponse = new StringResponse(Response.SUCCESS.getValue(), "account logged in");
+
+            request.getSession().setAttribute("currentUser", currentUser);
+
         } else {
+
             stringResponse = new StringResponse(Response.FAILURE.getValue(), "wrong credentials");
+
         }
 
         return ResponseEntity.ok(stringResponse);
     }
 
-    @CrossOrigin
-    @GetMapping(path = "/data", produces = "application/json")
-    public ResponseEntity<DataResponse> getData() {
-
-        DataResponse dataResponse;
-
-        if (userStatus.getAdmin() != null && userStatus.getAuthorize() != null &&
-                userStatus.getAdmin() && userStatus.getAuthorize()) {
-            dataResponse = new DataResponse("succes", "Top secret mesage only for admin");
-        } else {
-            dataResponse = new DataResponse("failure", "You are not admin!");
-        }
-        return ResponseEntity.ok(dataResponse);
-    }
-
-    @CrossOrigin
     @GetMapping(path = "/isloggedin", produces = "application/json")
-    public ResponseEntity<StatusResponse> getStatus() {
+    public ResponseEntity<StatusResponse> getStatus( HttpServletRequest request) {
+
+        currentUser = (CurrentUser) request.getSession().getAttribute("currentUser");
 
         StatusResponse statusResponse = new StatusResponse();
-        if (userStatus.getAuthorize() != null &&
-                userStatus.getAuthorize()) {
+        if (currentUser != null && currentUser.getAuthorize() != null &&
+                currentUser.getAuthorize()) {
             statusResponse.setStatus(true);
         } else {
             statusResponse.setStatus(false);
@@ -81,16 +86,15 @@ public class HomeController {
         return ResponseEntity.ok(statusResponse);
     }
 
-    @CrossOrigin
     @GetMapping(path = "/logout", produces = "application/json")
-    public ResponseEntity<SuccessResponse> logout() {
-        userStatus = new UserStatus();
+    public ResponseEntity<SuccessResponse> logout( HttpServletRequest request) {
+        request.getSession().invalidate();
+//        currentUser = new CurrentUser();
         SuccessResponse successResponse = new SuccessResponse();
         successResponse.setSuccess(true);
         return ResponseEntity.ok(successResponse);
     }
 
-    @CrossOrigin
     @PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
     public ResponseEntity<StatusResponse> addMember(@RequestBody User newUser) {
 
@@ -114,9 +118,5 @@ public class HomeController {
         return ResponseEntity.ok(new StatusResponse(true, "successful login"));
     }
 
-    private void setUserStatusForUser(Boolean isAdmin, Boolean isAuthorize) {
-        userStatus.setAdmin(isAdmin);
-        userStatus.setAuthorize(isAuthorize);
-    }
 
 }
