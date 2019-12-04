@@ -9,31 +9,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
 @Controller
 @RequestMapping("/auth")
 @Scope(value = WebApplicationContext.SCOPE_REQUEST)
-//@SessionAttributes("currentUser")
 
 public class LoginController {
-
-//    @Autowired
-//    private CurrentUser currentUser;
 
     @Autowired
     private IUserService userService;
 
-//    @Resource(name = "currentUser")
     CurrentUser currentUser;
 
     @PostMapping(path = "/login", consumes = "application/json", produces = "application/json")
@@ -89,7 +81,6 @@ public class LoginController {
     @GetMapping(path = "/logout", produces = "application/json")
     public ResponseEntity<SuccessResponse> logout( HttpServletRequest request) {
         request.getSession().invalidate();
-//        currentUser = new CurrentUser();
         SuccessResponse successResponse = new SuccessResponse();
         successResponse.setSuccess(true);
         return ResponseEntity.ok(successResponse);
@@ -113,7 +104,7 @@ public class LoginController {
         newUser.setAdmin(false);
         newUser.setQuote("");
 
-        userService.createUser(newUser);
+        userService.save(newUser);
 
         return ResponseEntity.ok(new StatusResponse(true, "successful login"));
     }

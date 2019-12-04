@@ -12,13 +12,10 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.Serializable;
 
 @Component
-//@Scope(value=WebApplicationContext.SCOPE_SESSION)
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-//@Component(value="registerBean")
-@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "request")
 public class CurrentUser implements Serializable {
 
     private Long id;
@@ -32,14 +29,4 @@ public class CurrentUser implements Serializable {
     private Boolean authorize;
     private Boolean admin;
 
-//
-//
-//    public void setUserStatusForUser(Boolean isAdmin, Boolean isAuthorize) {
-//        setAdmin(isAdmin);
-//        setAuthorize(isAuthorize);
-//    }
-//    private void setUserData(String username, String quote) {
-//        setUsername(username);
-//        setQuote(quote);
-//    }
 }

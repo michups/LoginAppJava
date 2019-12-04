@@ -1,6 +1,5 @@
 package com.michups.controller;
 
-import com.michups.model.LoginCredencials;
 import com.michups.model.User;
 import com.michups.model.CurrentUser;
 import com.michups.response.*;
@@ -9,20 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
 @Controller
 @RequestMapping("/data")
 @Scope(value = WebApplicationContext.SCOPE_REQUEST)
-//@SessionAttributes("currentUser")
 public class UserDataController {
 
-//    @Autowired
     private CurrentUser currentUser;
 
     @Autowired
@@ -41,6 +38,26 @@ public class UserDataController {
             userDataResponse = new UserDataResponse();
         }
         return ResponseEntity.ok(userDataResponse);
+    }
+
+    @PostMapping(path = "/quote", produces = "application/json")
+    public ResponseEntity<SuccessResponse> setQuote(@RequestBody Map<String, String> quote,
+                                                    HttpServletRequest request) {
+
+        String quoteStr = quote.get("value");
+
+        System.out.println(quoteStr);
+
+        currentUser = (CurrentUser) request.getSession().getAttribute("currentUser");
+
+        User userForUpdate = userService.findByUsername(currentUser.getUsername());
+
+        userForUpdate.setQuote(quoteStr);
+        userForUpdate = userService.save(userForUpdate);
+
+        currentUser.setQuote(userForUpdate.getQuote());
+
+        return ResponseEntity.ok(new SuccessResponse(true));
     }
 
     @GetMapping(path = "/datasecret", produces = "application/json")
