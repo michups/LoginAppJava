@@ -19,7 +19,6 @@ logging:
     org:
       springframework: ERROR
       hibernate:
-        show_sql: true
         SQL: trace
         type:
           descriptor:
